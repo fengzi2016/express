@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scores</title>
+    <link rel="stylesheet" href="WEB/bootstrap_practise_starter/bootstrap-3.3.7-dist/css/bootstrap.css">
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="WEB/bootstrap_practise_starter/bootstrap-3.3.7-dist/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="WEB/bootstrap_practise_starter/scoresCss.css" type="text/css">
+    <script src="../WEB/js/first_application/scores.js"></script>
+    <script src="WEB/bootstrap_practise_starter/find_change.js"></script>
+</head>
+<body>
+<div class="head">
+    <div class="logo">1</div>
+</div>
+<div class="content">
+    <div class="left">
+        <div class="list-group">
+            <a href="scoresWeb.html" class="list-group-item active">
+                学生信息
+            </a>
+            <a href="addScores.html" class="list-group-item add">添加学生信息</a>
+            <a href="findScores.html" class="list-group-item find">查询学生信息</a>
+            <a href="changeScores.html" class="list-group-item change">修改学生信息</a>
+        </div>
+    </div>
+    <div class="right" id="right">
+        <div class="col-lg-6">
+            <form  method="post" id="form_demo">
+            <div class="input-group">
+
+                <input type="text" class="form-control" id="Id" name="Ids" placeholder="Please input id, if you want to put ids,please use ',' to split them">
+                <span class="input-group-btn">
+                <button class="btn btn-default" type="button" id="button">Search</button>
+                </span>
+
+            </div><!-- /input-group -->
+            </form>
+        </div>
+        <div id="page_table">
+        <table class="table table-striped table-bordered table-responsive table-hover" id="table">
+            <tbody id="tbody">
+
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+    $('#button').on('click',function () {
+        let datas=$('#form_demo').serialize() ;
+        $.ajax({
+            type:'POST',
+            url:'/searches',
+            dataType:'json',
+            data:datas,
+            success:function (resp) {
+                let baseInfo = baseGet(resp);
+                onSubmit(baseInfo);
+            },
+            error:function () {
+                alert(' 请按正确的格式输入要打印的学生的学号（格式： 学号, 学号,…）');
+            },
+        });
+        /*$.post('/searches',datas,function (data) {
+                 let baseInfo = baseGet(data);
+                 onSubmit(baseInfo);
+
+   });*/
+  });
+</script>
+</html>

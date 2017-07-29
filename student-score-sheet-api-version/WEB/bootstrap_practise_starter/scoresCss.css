@@ -1,0 +1,44 @@
+*{
+    padding:0;
+    margin:0;
+}
+html, body {
+    height: 100%;
+}
+.head{
+    display: flex;
+    height: 20%;
+    margin:0 5%;
+    border: solid;
+    border-color: #000;
+}
+.head img{
+    height: 80%;
+    width: auto;
+    margin: 2%;
+}
+.headContent{
+    background-color: #2aabd2;
+}
+.content{
+    display: flex;
+    height: 78%;
+    margin: 0 5%;
+    border: solid;
+    border-width: medium;
+    border-color: red;
+}
+.right{
+    height:100%;
+    flex: 80%;
+    border: solid;
+    border-width: medium;
+    border-color: green;
+}
+.left{
+    height:100%;
+    flex: 20%;
+    border: solid;
+    border-width: medium;
+    border-color: blue;
+}
