@@ -6,31 +6,36 @@ let client=redis.createClient();
 let bodyParser=require('body-parser');
 let multer=require('multer');
 let upload=multer();
-let collection=[];
 app.use(express.static(__dirname));
 client.on("error",function (err) {
     console.log("Error"+err);
 });
 app.get('/', function (req, res) {
-        if(collection.length!==0){
-            res.sendfile(__dirname+'/WEB/bootstrap_practise_starter/scoresWeb.html');
-        }else{
+    client.get('idCollection', function (err, collection) {
+        collection = JSON.parse(collection);
+        if (collection.length !== 0) {
+            res.sendfile(__dirname + '/WEB/bootstrap_practise_starter/scoresWeb.html');
+        } else {
             res.status(200);
-            res.send('<h1>目前没有学生</h1>><a href="/addition">请先添加学生</a>');
+            res.send('<h1>目前没有学生</h1><strong><a href="/addition">请先添加学生</a></strong>');
         }
+    });
 });
 app.post('/',function (req,res) {
-        let outBase=[];
+    let outBase = [];
+    client.get('idCollection', function (err, collection) {
+       collection=JSON.parse(collection);
         collection.map(function (index) {
-            client.get(index,function (err,reply) {
+            index=JSON.stringify(index);
+            client.get(index, function (err, reply) {
                 outBase.push(JSON.parse(reply));
-                if(outBase.length===collection.length) {
+                if (outBase.length === collection.length) {
                     res.status(200).json(outBase);
                 }
             });
         });
+    });
 });
-
 app.get('/addition',function (req,res) {
     res.sendfile(__dirname+'/WEB/bootstrap_practise_starter/addScores.html');
 });
@@ -48,9 +53,14 @@ app.post('/addition',upload.array(),function (req,res) {
     if(/^[0-9]{1,3}$/.exec(req.body.English)!==null){trueFlag++;}
     if(/^[0-9]{1,3}$/.exec(req.body.Program)!==null){trueFlag++;}
     if(trueFlag===8){
+        client.get('idCollection',function (err,collection) {
+            collection=JSON.parse(collection);
+            collection.push(req.body.Id);
+            collection=JSON.stringify(collection);
+            client.set('idCollection',collection);
+        });
         let Json=JSON.stringify(req.body);
         let keyJson=JSON.stringify(req.body.Id);
-        collection.push(keyJson);
         client.set(keyJson,Json);
         client.get(keyJson,function (err,reply) {
             console.log(reply);
@@ -121,6 +131,9 @@ app.delete('/searches/:id',function (req,res) {
     });
 });
 let server = app.listen(8081, function () {
+    let collection=[];
+    collection=JSON.stringify(collection);
+    client.set('idCollection',collection);
     let host = server.address().address;
     let port = server.address().port;
     console.log("应用实例，访问地址为 http://%s:%s", host, port)
