@@ -130,8 +130,8 @@ function onSubmit(baseInfo) {
                         if(needInfo.length===2){
                             $('#page').remove();
                         }else {
-                            baseInfo=baseGet();
-                            let needInfo=start();
+                            baseInfo=baseGet(data);
+                            let needInfo=start(baseInfo);
                             end=print(needInfo);
                             document.getElementById('page').innerHTML=end;
                         }

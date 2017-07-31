@@ -6,6 +6,9 @@ let client=redis.createClient();
 let bodyParser=require('body-parser');
 let multer=require('multer');
 let upload=multer();
+let collection=[];
+collection=JSON.stringify(collection);
+client.set('idCollection',collection);
 app.use(express.static(__dirname));
 client.on("error",function (err) {
     console.log("Error"+err);
@@ -23,8 +26,17 @@ app.get('/', function (req, res) {
 });
 app.post('/',function (req,res) {
     let outBase = [];
-    client.get('idCollection', function (err, collection) {
-       collection=JSON.parse(collection);
+    client.get('idCollection',function (err,collection) {
+        collection=JSON.parse(collection);
+        let scollection=collection.filter(function (num,index,collection) {
+            return collection.lastIndexOf(num)===index&&num!==null||undefined;
+        });
+        console.log(2);
+        console.log(scollection);
+        collection=JSON.stringify(scollection);
+        client.set('idCollection',collection);
+        client.get('idCollection', function (err, collection) {
+        collection=JSON.parse(collection);
         collection.map(function (index) {
             index=JSON.stringify(index);
             client.get(index, function (err, reply) {
@@ -35,6 +47,7 @@ app.post('/',function (req,res) {
             });
         });
     });
+});
 });
 app.get('/addition',function (req,res) {
     res.sendfile(__dirname+'/WEB/bootstrap_practise_starter/addScores.html');
@@ -62,9 +75,6 @@ app.post('/addition',upload.array(),function (req,res) {
         let Json=JSON.stringify(req.body);
         let keyJson=JSON.stringify(req.body.Id);
         client.set(keyJson,Json);
-        client.get(keyJson,function (err,reply) {
-            console.log(reply);
-        });
         res.send('OK');
     }else{
         res.status(400);
@@ -121,19 +131,24 @@ app.delete('/searches/:id',function (req,res) {
     studentId=JSON.stringify(studentId);
     client.get(studentId,function (err,reply) {
         if(reply!==null){
+            client.get('idCollection',function (err,collection) {
+                collection=JSON.parse(collection);
+                let index= collection.indexOf(req.params.id);
+                collection.splice(index,1);
+                console.log(1);
+                console.log(collection);
+               client.set('idCollection',JSON.stringify(collection));
             client.del(studentId);
             res.status(200);
             res.send('Already Deleted');
+            });
         }else{
             res.status(404);
             res.send('<h1>404<br>该学生不存在<h1>');
-        }
+         }
     });
 });
 let server = app.listen(8081, function () {
-    let collection=[];
-    collection=JSON.stringify(collection);
-    client.set('idCollection',collection);
     let host = server.address().address;
     let port = server.address().port;
     console.log("应用实例，访问地址为 http://%s:%s", host, port)

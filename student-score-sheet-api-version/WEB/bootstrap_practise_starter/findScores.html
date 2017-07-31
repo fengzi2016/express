@@ -50,6 +50,7 @@
 
 </body>
 <script>
+    var data;
     $('#button').on('click',function () {
         let datas=$('#form_demo').serialize() ;
         $.ajax({
@@ -58,6 +59,7 @@
             dataType:'json',
             data:datas,
             success:function (resp) {
+                data=resp;
                 let baseInfo = baseGet(resp);
                 onSubmit(baseInfo);
             },
