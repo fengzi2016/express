@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Scores</title>
-    <link rel="stylesheet" href="./bootstrap-3.3.7-dist/css/bootstrap.css">
+    <link rel="stylesheet" href="WEB/bootstrap_practise_starter/bootstrap-3.3.7-dist/css/bootstrap.css">
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-    <script src="./bootstrap-3.3.7-dist/js/bootstrap.js"></script>
-    <link rel="stylesheet" href="scoresCss.css" type="text/css">
+    <script src="WEB/bootstrap_practise_starter/bootstrap-3.3.7-dist/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="WEB/bootstrap_practise_starter/scoresCss.css" type="text/css">
+    <script src="../WEB/js/first_application/scores.js"></script>
+    <script src="WEB/bootstrap_practise_starter/find_change.js"></script>
 </head>
 <body onload="On()">
 <div class="head">
@@ -33,7 +35,13 @@
 </body>
 <script>
     function On() {
-        let result = `<tbody><tr>
+        $.ajax({
+            type:'POST',
+            url:'/',
+            dataType:'json',
+            success:function (resp) {
+                console.log(resp);
+                let result = `<tbody><tr>
             <th>学号</th>
             <th>姓名</th>
             <th>数学</th>
@@ -41,24 +49,23 @@
             <th>英语</th>
             <th>编程</th>
         </tr>`;
-        for (let i = 0; i < localStorage.length; i++) {
-            let Arr;
-            if (localStorage.key(i) !== 'stuId' && localStorage.key(i) !== 'stuName') {
-                let info = localStorage.getItem(localStorage.key(i));
-                Arr = info.split(',');
-                result += `<tr>
-            <td>${localStorage.key(i)}</td>
-            <td>${Arr[0]}</td>
-            <td>${Arr[1]}</td>
-            <td>${Arr[2]}</td>
-            <td>${Arr[3]}</td>
-            <td>${Arr[4]}</td>
+                let needInfo=resp;
+                for (let i = 0; i <needInfo.length; i++) {
+                        result += `<tr>
+            <td>${needInfo[i].Id}</td>
+            <td>${needInfo[i].name}</td>
+            <td>${needInfo[i].math}</td>
+            <td>${needInfo[i].Chinese}</td>
+            <td>${needInfo[i].English}</td>
+            <td>${needInfo[i].Program}</td>
         </tr>`;
+                    }
+                result=result+`</tbody>`;
+                $('#table').append(result);
             }
-
-        }
-        result=result+`</tbody>`;
-        $('#table').append(result);
+        });
     }
+
+
 </script>
 </html>

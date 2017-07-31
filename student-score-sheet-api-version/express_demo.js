@@ -3,23 +3,34 @@ let express = require('express');
 let app = express();
 let redis=require('redis');
 let client=redis.createClient();
-let count=0;
 let bodyParser=require('body-parser');
 let multer=require('multer');
 let upload=multer();
+let collection=[];
 app.use(express.static(__dirname));
 client.on("error",function (err) {
     console.log("Error"+err);
 });
-app.get('/', function (req, res,next) {
-    count++;
-    res.send('Hello World');
-    client.get('visit', function (err, reply) {
-        count = JSON.parse(count);
-        console.log(count);
-    });
-    next();
+app.get('/', function (req, res) {
+        if(collection.length!==0){
+            res.sendfile(__dirname+'/WEB/bootstrap_practise_starter/scoresWeb.html');
+        }else{
+            res.status(200);
+            res.send('<h1>目前没有学生</h1>><a href="/addition">请先添加学生</a>');
+        }
 });
+app.post('/',function (req,res) {
+        let outBase=[];
+        collection.map(function (index) {
+            client.get(index,function (err,reply) {
+                outBase.push(JSON.parse(reply));
+                if(outBase.length===collection.length) {
+                    res.status(200).json(outBase);
+                }
+            });
+        });
+});
+
 app.get('/addition',function (req,res) {
     res.sendfile(__dirname+'/WEB/bootstrap_practise_starter/addScores.html');
 });
@@ -39,11 +50,12 @@ app.post('/addition',upload.array(),function (req,res) {
     if(trueFlag===8){
         let Json=JSON.stringify(req.body);
         let keyJson=JSON.stringify(req.body.Id);
+        collection.push(keyJson);
         client.set(keyJson,Json);
         client.get(keyJson,function (err,reply) {
             console.log(reply);
         });
-        res.send('OK')
+        res.send('OK');
     }else{
         res.status(400);
         res.send('请按正确的格式输入（格式：姓名, 学号, 学科: 成绩, …）');
@@ -109,8 +121,6 @@ app.delete('/searches/:id',function (req,res) {
     });
 });
 let server = app.listen(8081, function () {
-    count=JSON.stringify(count);
-    client.set('visit',count);
     let host = server.address().address;
     let port = server.address().port;
     console.log("应用实例，访问地址为 http://%s:%s", host, port)
