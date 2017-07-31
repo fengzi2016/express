@@ -31,8 +31,6 @@ app.post('/',function (req,res) {
         let scollection=collection.filter(function (num,index,collection) {
             return collection.lastIndexOf(num)===index&&num!==null||undefined;
         });
-        console.log(2);
-        console.log(scollection);
         collection=JSON.stringify(scollection);
         client.set('idCollection',collection);
         client.get('idCollection', function (err, collection) {
@@ -135,8 +133,6 @@ app.delete('/searches/:id',function (req,res) {
                 collection=JSON.parse(collection);
                 let index= collection.indexOf(req.params.id);
                 collection.splice(index,1);
-                console.log(1);
-                console.log(collection);
                client.set('idCollection',JSON.stringify(collection));
             client.del(studentId);
             res.status(200);
